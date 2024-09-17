@@ -18,11 +18,32 @@ If all content files are valid for the Docusaurus MDX parser, you should see out
 npx docusaurus-mdx-checker-diff -r 4000e3b5355c6ee1eb0691dded9d449b9a4c2313..8e2641cb8f7bc3d732870184efd1a8add147fb1d
 
 Getting relevant files for git range: 4000e3b5355c6ee1eb0691dded9d449b9a4c2313..8e2641cb8f7bc3d732870184efd1a8add147fb1d
+
 Found 8 modified files in the git range 4000e3b5355c6ee1eb0691dded9d449b9a4c2313..8e2641cb8f7bc3d732870184efd1a8add147fb1d in dir /Users/andrewbeveridge/Projects/docusaurus-mdx-checker-diff, filtering for relevant files
+
 [SUCCESS] All 1 MDX files compiled successfully!
 ```
 
-## Usage Example
+## Usage
+
+This is a minimal CLI tool with no mandatory options.
+If you run it without a `-r` / `--gitRange` parameter, it will validate all files in the current directory.
+If you pass in a `-c` / `--cwd` parameter, it will only process files within that directory (and will use that for the `git diff` as well).
+
+```bash
+Usage: docusaurus-mdx-checker-diff [options]
+
+Check MDX files changed in a git range or all files if not specified
+
+Options:
+  -c, --cwd <cwd>            the CWD dir containing your MDX files
+  -r, --gitRange <gitRange>  the git range to check modified files
+  -v --verbose               enables more verbose logging
+  -g --globals               Attempt to report usage of unknown global variables in MDX
+  -h, --help                 display help for command
+```
+
+### Github Actions Workflow Example
 
 The primary use case for this tool is to implement a CI job which validates any changed content files.
 
@@ -71,7 +92,9 @@ You should see output similar to the below if any validation errors occur:
 
 ```bash
 Getting relevant files for git range: 4000e3b5355c6ee1eb0691dded9d449b9a4c2313..705934e3f07645a697f9f3eeb2c5425d9a015a63
+
 Found 8 modified files in the git range 4000e3b5355c6ee1eb0691dded9d449b9a4c2313..705934e3f07645a697f9f3eeb2c5425d9a015a63 in dir /tmp/test, filtering for relevant files
+
 [ERROR] 1/1 MDX files couldn't compile!
 ---
 Error while compiling file README.md
