@@ -27,6 +27,8 @@ async function getRelevantFiles(gitRange, cwd, include, exclude) {
     console.log(
       `Found ${files.length} modified files in the git range ${gitRange} in dir ${cwd}, filtering for relevant files`
     );
+
+    console.log("Modified files found: ", files);
   } else {
     files = await globby(include, {
       cwd,

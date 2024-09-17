@@ -2,7 +2,7 @@
   "name": "docusaurus-mdx-checker-diff",
   "author": "beveradb",
   "license": "MIT",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Check modified files for Docusaurus content for MDX v2 parsing errors",
   "homepage": "https://github.com/beveradb/docusaurus-mdx-checker-diff#readme",
   "keywords": [
@@ -24,6 +24,7 @@
   "scripts": {
     "launch:docusaurus-v2": "node src/cli.js --cwd ./__tests__/__fixtures__/sites/docusaurus-v2",
     "launch:docusaurus-v3": "node src/cli.js --cwd ./__tests__/__fixtures__/sites/docusaurus-v3",
+    "cli": "node src/cli.js",
     "test": "vitest --test-timeout 15000"
   },
   "dependencies": {

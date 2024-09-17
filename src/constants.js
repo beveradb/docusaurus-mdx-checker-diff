@@ -40,19 +40,7 @@ export const DefaultInclude = Object.freeze([
 ]);
 
 export const DefaultExclude = Object.freeze([
-  "packages",
-  "examples",
   "node_modules",
-  "CHANGELOG.md",
-  "CODE_OF_CONDUCT.md",
-  "CONTRIBUTING.md",
-  "README.md",
   //
-  "website/packages",
-  "website/examples",
   "website/node_modules",
-  "website/CHANGELOG.md",
-  "website/CODE_OF_CONDUCT.md",
-  "website/CONTRIBUTING.md",
-  "website/README.md",
 ]);

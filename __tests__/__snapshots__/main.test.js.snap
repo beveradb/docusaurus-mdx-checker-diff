@@ -91,13 +91,16 @@ Details: Expected a closing tag for \`</summary>\` (92:1-92:10) before the end o
 `;
 
 exports[`Jest > v2 > does not compile 1`] = `
-"[31m[ERROR][39m 2/58 MDX files couldn't compile!
+"[31m[ERROR][39m 3/59 MDX files couldn't compile!
 [33m---[39m
 [31mError while compiling file[39m [34mdocs/Configuration.md[39m (Line=1756 Column=44)
 Details: Unexpected character \`-\` (U+002D) before name, expected a character that can start a name, such as a letter, \`$\`, or \`_\`
 [33m---[39m
 [31mError while compiling file[39m [34mdocs/GettingStarted.md[39m (Line=92 Column=1)
 Details: Expected a closing tag for \`</summary>\` (92:1-92:10) before the end of \`paragraph\`
+[33m---[39m
+[31mError while compiling file[39m [34mwebsite/README.md[39m (Line=43 Column=49)
+Details: Unexpected character \`=\` (U+003D) before name, expected a character that can start a name, such as a letter, \`$\`, or \`_\`
 [33m---[39m
 "
 `;
