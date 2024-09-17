@@ -19,55 +19,6 @@ import {
 const SuccessPrefix = chalk.green("[SUCCESS]");
 const ErrorPrefix = chalk.red("[ERROR]");
 
-// Update this function to handle null gitRange
-async function getRelevantFiles(gitRange, cwd, include, exclude) {
-  let files;
-  if (gitRange) {
-    files = await getModifiedFiles(gitRange, cwd);
-    console.log(
-      `Found ${files.length} modified files in the git range ${gitRange} in dir ${cwd}, filtering for relevant files`
-    );
-
-    console.log("Modified files found: ", files);
-  } else {
-    files = await globby(include, {
-      cwd,
-      ignore: exclude,
-      // gitignore: true, // Does not work well with relative paths like ../docs
-    });
-    files.sort();
-
-    console.log(
-      `Found ${files.length} files in dir ${cwd}, filtering for relevant files`
-    );
-  }
-
-  return filterRelevantFiles(files, include, exclude);
-}
-
-async function getModifiedFiles(gitRange, cwd) {
-  const { exec } = await import("child_process");
-  return new Promise((resolve, reject) => {
-    exec(
-      `git diff --name-only ${gitRange}`,
-      { cwd },
-      (error, stdout, stderr) => {
-        if (error) reject(error);
-        else resolve(stdout.trim().split("\n").filter(Boolean));
-      }
-    );
-  });
-}
-
-async function filterRelevantFiles(files, include, exclude) {
-  const { minimatch } = await import("minimatch");
-  return files.filter(
-    (file) =>
-      include.some((pattern) => minimatch(file, pattern)) &&
-      !exclude.some((pattern) => minimatch(file, pattern))
-  );
-}
-
 export default async function main({
   gitRange = null, // Change this to null instead of false
   cwd = process.cwd(),
@@ -85,11 +36,12 @@ export default async function main({
   const relevantFiles = await getRelevantFiles(gitRange, cwd, include, exclude);
 
   if (relevantFiles.length === 0) {
-    throw new Error(
-      `${ErrorPrefix} No relevant MDX files found${
+    console.log(
+      `${SuccessPrefix} No relevant MDX files found${
         gitRange ? ` in the git range ${gitRange}` : ""
       }`
     );
+    return;
   }
 
   if (verbose) {
@@ -155,20 +107,6 @@ export default async function main({
         }
       }
 
-      /*
-      // const fileToDebug = "docs/introduction.md";
-      const fileToDebug = undefined;
-      if (relativeFilePath === fileToDebug) {
-        console.log({
-          relativeFilePath,
-          fileContent,
-          contentPreprocessed,
-          result: result.toString(),
-          compilerOptions,
-        });
-      }
-       */
-
       // TODO generate warnings for compat options here?
       return { relativeFilePath, status: "success", result };
     } catch (error) {
@@ -193,4 +131,52 @@ Details: ${error.message}`;
     }
     return "";
   }
+}
+
+async function getRelevantFiles(gitRange, cwd, include, exclude) {
+  let files;
+  if (gitRange) {
+    files = await getModifiedFiles(gitRange, cwd);
+    console.log(
+      `Found ${files.length} modified files in the git range ${gitRange} in dir ${cwd}, filtering for relevant files`
+    );
+
+    console.log("Modified files found: ", files);
+  } else {
+    files = await globby(include, {
+      cwd,
+      ignore: exclude,
+      // gitignore: true, // Does not work well with relative paths like ../docs
+    });
+    files.sort();
+
+    console.log(
+      `Found ${files.length} files in dir ${cwd}, filtering for relevant files`
+    );
+  }
+
+  return filterRelevantFiles(files, include, exclude);
+}
+
+async function getModifiedFiles(gitRange, cwd) {
+  const { exec } = await import("child_process");
+  return new Promise((resolve, reject) => {
+    exec(
+      `git diff --name-only ${gitRange}`,
+      { cwd },
+      (error, stdout, stderr) => {
+        if (error) reject(error);
+        else resolve(stdout.trim().split("\n").filter(Boolean));
+      }
+    );
+  });
+}
+
+async function filterRelevantFiles(files, include, exclude) {
+  const { minimatch } = await import("minimatch");
+  return files.filter(
+    (file) =>
+      include.some((pattern) => minimatch(file, pattern)) &&
+      !exclude.some((pattern) => minimatch(file, pattern))
+  );
 }
