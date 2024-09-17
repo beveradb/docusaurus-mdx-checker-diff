@@ -5,32 +5,35 @@ import process from "node:process";
 import main from "./main.js";
 
 program
-  .requiredOption("-s1, --sha1 <sha1>", "First git SHA")
-  .requiredOption("-s2, --sha2 <sha2>", "Second git SHA")
+  .description(
+    "Check MDX files changed in a git range or all files if not specified"
+  )
+  .option("-c, --cwd <cwd>", "the CWD dir containing your MDX files")
+  .option("-r, --gitRange <gitRange>", "the git range to check modified files")
   .option("-v --verbose", "enables more verbose logging")
   .option(
     "-g --globals",
     "Attempt to report usage of unknown global variables in MDX"
   );
 
-program.parse();
+program.parse(process.argv);
 
 const options = program.opts();
-if (options.verbose) {
+const {
+  cwd = process.cwd(),
+  verbose = false,
+  checkUnknownGlobals: globals = undefined,
+  gitRange,
+} = options;
+
+if (verbose) {
   console.log("Options: ", options);
 }
 
-const {
-  sha1,
-  sha2,
-  verbose = false,
-  checkUnknownGlobals: globals = undefined,
-} = options;
-
 try {
   const result = await main({
-    sha1,
-    sha2,
+    gitRange,
+    cwd,
     verbose,
     globals,
   });
