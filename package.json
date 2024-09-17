@@ -1,10 +1,10 @@
 {
-  "name": "docusaurus-mdx-checker",
-  "author": "slorber",
+  "name": "docusaurus-mdx-checker-diff",
+  "author": "beveradb",
   "license": "MIT",
-  "version": "3.0.0",
-  "description": "Check your Docusaurus content for MDX v2 parsing errors",
-  "homepage": "https://github.com/slorber/docusaurus-mdx-checker#readme",
+  "version": "1.0.0",
+  "description": "Check modified files for Docusaurus content for MDX v2 parsing errors",
+  "homepage": "https://github.com/beveradb/docusaurus-mdx-checker-diff#readme",
   "keywords": [
     "mdx",
     "docusaurus",
@@ -13,10 +13,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/slorber/docusaurus-mdx-checker.git"
+    "url": "git+https://github.com/beveradb/docusaurus-mdx-checker-diff.git"
   },
   "bugs": {
-    "url": "https://github.com/slorber/docusaurus-mdx-checker/issues"
+    "url": "https://github.com/beveradb/docusaurus-mdx-checker-diff/issues"
   },
   "main": "src/main.js",
   "bin": "src/cli.js",
@@ -26,7 +26,6 @@
     "launch:docusaurus-v3": "node src/cli.js --cwd ./__tests__/__fixtures__/sites/docusaurus-v3",
     "test": "vitest --test-timeout 15000"
   },
-
   "dependencies": {
     "@mdx-js/mdx": "^3.0.0",
     "@slorber/remark-comment": "^1.0.0",
@@ -44,5 +43,6 @@
   "devDependencies": {
     "prettier": "^3.0.3",
     "vitest": "^0.34.3"
-  }
+  },
+  "packageManager": "yarn@4.5.0"
 }
