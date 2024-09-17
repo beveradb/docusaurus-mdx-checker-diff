@@ -12,6 +12,16 @@ The command will return success if all modified Markdown/MDX documents are compa
 
 This tool was created to help Docusaurus v3+ users prevent content with broken Markdown/MDX from getting into repositories.
 
+If all content files are valid for the Docusaurus MDX parser, you should see output similar to the below:
+
+```bash
+npx docusaurus-mdx-checker-diff -r 4000e3b5355c6ee1eb0691dded9d449b9a4c2313..8e2641cb8f7bc3d732870184efd1a8add147fb1d
+
+Getting relevant files for git range: 4000e3b5355c6ee1eb0691dded9d449b9a4c2313..8e2641cb8f7bc3d732870184efd1a8add147fb1d
+Found 8 modified files in the git range 4000e3b5355c6ee1eb0691dded9d449b9a4c2313..8e2641cb8f7bc3d732870184efd1a8add147fb1d in dir /Users/andrewbeveridge/Projects/docusaurus-mdx-checker-diff, filtering for relevant files
+[SUCCESS] All 1 MDX files compiled successfully!
+```
+
 ## Usage Example
 
 The primary use case for this tool is to implement a CI job which validates any changed content files.
