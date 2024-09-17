@@ -11,3 +11,5 @@ npx docusaurus-mdx-checker-diff $SHA1 $SHA2
 The command will return success if all modified Markdown/MDX documents are compatible with MDX v3 (Docusaurus flavor), or return (and print) an error if any are not compatible.
 
 This tool was created to help Docusaurus v3+ users prevent content with broken Markdown/MDX from getting into repositories.
+
+<TestInvalidMDXElement>
