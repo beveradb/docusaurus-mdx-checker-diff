@@ -845,6 +845,7 @@ __metadata:
     commander: "npm:^11.0.0"
     globby: "npm:^13.2.2"
     lodash: "npm:^4.17.21"
+    minimatch: "npm:^10.0.1"
     periscopic: "npm:^3.1.0"
     prettier: "npm:^3.0.3"
     remark-directive: "npm:^3.0.0"
@@ -2337,6 +2338,15 @@ __metadata:
     braces: "npm:^3.0.2"
     picomatch: "npm:^2.3.1"
   checksum: 10c0/3d6505b20f9fa804af5d8c596cb1c5e475b9b0cd05f652c5b56141cf941bd72adaeb7a436fda344235cef93a7f29b7472efc779fcdb83b478eab0867b95cdeff
+  languageName: node
+  linkType: hard
+
+"minimatch@npm:^10.0.1":
+  version: 10.0.1
+  resolution: "minimatch@npm:10.0.1"
+  dependencies:
+    brace-expansion: "npm:^2.0.1"
+  checksum: 10c0/e6c29a81fe83e1877ad51348306be2e8aeca18c88fdee7a99df44322314279e15799e41d7cb274e4e8bb0b451a3bc622d6182e157dfa1717d6cda75e9cd8cd5d
   languageName: node
   linkType: hard
 

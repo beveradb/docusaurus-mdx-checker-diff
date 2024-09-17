@@ -23,7 +23,8 @@ const ErrorPrefix = chalk.red("[ERROR]");
 // Script
 
 export default async function main({
-  cwd = undefined,
+  sha1,
+  sha2,
   include = DefaultInclude,
   exclude = DefaultExclude,
   remarkPlugins = DefaultRemarkPlugins,
@@ -32,30 +33,35 @@ export default async function main({
   verbose = false,
   globals = DefaultGlobals,
 }) {
-  const allRelativeFilePaths = await globby(include, {
-    cwd,
-    ignore: exclude,
-    // gitignore: true, // Does not work well with relative paths like ../docs
-  });
-  allRelativeFilePaths.sort();
+  const modifiedFiles = await getModifiedFiles(sha1, sha2);
+  console.log(
+    "Found " +
+      modifiedFiles.length +
+      " modified files between ${sha1} and ${sha2}, filtering for relevant files"
+  );
 
-  if (allRelativeFilePaths.length === 0) {
-    throw new Error(`${ErrorPrefix} Couldn't find any file to compile!`);
+  const relevantFiles = await filterRelevantFiles(
+    modifiedFiles,
+    include,
+    exclude
+  );
+
+  if (relevantFiles.length === 0) {
+    throw new Error(
+      `${ErrorPrefix} No relevant modified MDX files found between ${sha1} and ${sha2}`
+    );
   }
 
   if (verbose) {
     console.log(
-      "Found " + allRelativeFilePaths.length + " files to compile with MDX"
+      "Found " +
+        relevantFiles.length +
+        " relevant modified files to compile with MDX"
     );
-    console.log(
-      "List of files:\n",
-      JSON.stringify(allRelativeFilePaths, null, 2)
-    );
+    console.log("List of files:\n", JSON.stringify(relevantFiles, null, 2));
   }
 
-  const allResults = await Promise.all(
-    allRelativeFilePaths.map(processFilePath)
-  );
+  const allResults = await Promise.all(relevantFiles.map(processFilePath));
 
   const allErrors = allResults.filter((r) => r.status === "error");
   const allSuccess = allResults.filter((r) => r.status === "success");
@@ -69,81 +75,100 @@ export default async function main({
     const outputSeparator = `\n${chalk.yellow("---")}\n`;
     throw new Error(
       `${ErrorPrefix} ${allErrors.length}/${
-        allRelativeFilePaths.length
-      } MDX files couldn't compile!${outputSeparator}${allErrors
+        relevantFiles.length
+      } relevant modified MDX files couldn't compile!${outputSeparator}${allErrors
         .map((error) => error.errorMessage)
         .join(outputSeparator)}${outputSeparator}`
     );
   } else {
-    return `${SuccessPrefix} All ${allRelativeFilePaths.length} MDX files compiled successfully!`;
+    return `${SuccessPrefix} All ${relevantFiles.length} relevant modified MDX files compiled successfully!`;
   }
+}
 
-  ////////////////////////////////////////
-  // Functions
+async function getModifiedFiles(sha1, sha2) {
+  const { exec } = await import("child_process");
+  return new Promise((resolve, reject) => {
+    exec(`git diff --name-only ${sha1} ${sha2}`, (error, stdout, stderr) => {
+      if (error) reject(error);
+      else resolve(stdout.trim().split("\n").filter(Boolean));
+    });
+  });
+}
 
-  async function processFilePath(relativeFilePath) {
-    const filePath = path.resolve(cwd, relativeFilePath);
-    const fileFormat =
-      format === "detect" ? (filePath.endsWith(".md") ? "md" : "mdx") : "mdx";
-    try {
-      // console.log("filePath", filePath);
-      const fileContent = await fs.readFile(filePath, "utf8");
-      // console.log("fileContent", fileContent);
-      const contentPreprocessed = preprocess(fileContent);
-      const compilerOptions = {
-        format: fileFormat,
-        remarkPlugins,
-        rehypePlugins,
-      };
-      const result = await compile(contentPreprocessed, compilerOptions);
+async function filterRelevantFiles(files, include, exclude) {
+  const { minimatch } = await import("minimatch");
+  return files.filter(
+    (file) =>
+      include.some((pattern) => minimatch(file, pattern)) &&
+      !exclude.some((pattern) => minimatch(file, pattern))
+  );
+}
 
-      if (globals !== null) {
-        const unknownGlobals = getUnknownGlobals(result.value, globals);
-        if (unknownGlobals.length > 0) {
-          throw new Error(
-            `These MDX global variables do not seem to be available in scope: ${unknownGlobals.join(
-              " "
-            )}`
-          );
-        }
+//////////////////////////////////////
+// Functions
+
+async function processFilePath(relativeFilePath) {
+  const filePath = path.resolve(cwd, relativeFilePath);
+  const fileFormat =
+    format === "detect" ? (filePath.endsWith(".md") ? "md" : "mdx") : "mdx";
+  try {
+    // console.log("filePath", filePath);
+    const fileContent = await fs.readFile(filePath, "utf8");
+    // console.log("fileContent", fileContent);
+    const contentPreprocessed = preprocess(fileContent);
+    const compilerOptions = {
+      format: fileFormat,
+      remarkPlugins,
+      rehypePlugins,
+    };
+    const result = await compile(contentPreprocessed, compilerOptions);
+
+    if (globals !== null) {
+      const unknownGlobals = getUnknownGlobals(result.value, globals);
+      if (unknownGlobals.length > 0) {
+        throw new Error(
+          `These MDX global variables do not seem to be available in scope: ${unknownGlobals.join(
+            " "
+          )}`
+        );
       }
+    }
 
-      /*
-      // const fileToDebug = "docs/introduction.md";
-      const fileToDebug = undefined;
-      if (relativeFilePath === fileToDebug) {
-        console.log({
-          relativeFilePath,
-          fileContent,
-          contentPreprocessed,
-          result: result.toString(),
-          compilerOptions,
-        });
-      }
-       */
+    /*
+    // const fileToDebug = "docs/introduction.md";
+    const fileToDebug = undefined;
+    if (relativeFilePath === fileToDebug) {
+      console.log({
+        relativeFilePath,
+        fileContent,
+        contentPreprocessed,
+        result: result.toString(),
+        compilerOptions,
+      });
+    }
+     */
 
-      // TODO generate warnings for compat options here?
-      return { relativeFilePath, status: "success", result };
-    } catch (error) {
-      const errorMessage = `${chalk.red(
-        "Error while compiling file"
-      )} ${chalk.blue(relativeFilePath)}${formatMDXLineColumn(error)}
+    // TODO generate warnings for compat options here?
+    return { relativeFilePath, status: "success", result };
+  } catch (error) {
+    const errorMessage = `${chalk.red(
+      "Error while compiling file"
+    )} ${chalk.blue(relativeFilePath)}${formatMDXLineColumn(error)}
 Details: ${error.message}`;
-      return { relativeFilePath, status: "error", error, errorMessage };
-    }
+    return { relativeFilePath, status: "error", error, errorMessage };
   }
+}
 
-  function formatMDXLineColumn(error) {
-    if (error.line || error.column) {
-      let lineColumn = "";
-      if (error.line) {
-        lineColumn = lineColumn + "Line=" + error.line + " ";
-      }
-      if (error.column) {
-        lineColumn = lineColumn + "Column=" + error.column;
-      }
-      return ` (${lineColumn})`;
+function formatMDXLineColumn(error) {
+  if (error.line || error.column) {
+    let lineColumn = "";
+    if (error.line) {
+      lineColumn = lineColumn + "Line=" + error.line + " ";
     }
-    return "";
+    if (error.column) {
+      lineColumn = lineColumn + "Column=" + error.column;
+    }
+    return ` (${lineColumn})`;
   }
+  return "";
 }
