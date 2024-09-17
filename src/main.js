@@ -33,7 +33,13 @@ export default async function main({
   console.log(
     "Getting relevant files" + (gitRange ? ` for git range: ${gitRange}` : "")
   );
-  const relevantFiles = await getRelevantFiles(gitRange, cwd, include, exclude);
+  const relevantFiles = await getRelevantFiles(
+    verbose,
+    gitRange,
+    cwd,
+    include,
+    exclude
+  );
 
   if (relevantFiles.length === 0) {
     console.log(
@@ -133,7 +139,7 @@ Details: ${error.message}`;
   }
 }
 
-async function getRelevantFiles(gitRange, cwd, include, exclude) {
+async function getRelevantFiles(verbose, gitRange, cwd, include, exclude) {
   let files;
   if (gitRange) {
     files = await getModifiedFiles(gitRange, cwd);
@@ -141,7 +147,9 @@ async function getRelevantFiles(gitRange, cwd, include, exclude) {
       `Found ${files.length} modified files in the git range ${gitRange} in dir ${cwd}, filtering for relevant files`
     );
 
-    console.log("Modified files found: ", files);
+    if (verbose) {
+      console.log("Modified files found: ", files);
+    }
   } else {
     files = await globby(include, {
       cwd,
@@ -153,9 +161,13 @@ async function getRelevantFiles(gitRange, cwd, include, exclude) {
     console.log(
       `Found ${files.length} files in dir ${cwd}, filtering for relevant files`
     );
+
+    if (verbose) {
+      console.log("All files found: ", files);
+    }
   }
 
-  return filterRelevantFiles(files, include, exclude);
+  return filterRelevantFiles(verbose, files, include, exclude);
 }
 
 async function getModifiedFiles(gitRange, cwd) {
@@ -172,11 +184,21 @@ async function getModifiedFiles(gitRange, cwd) {
   });
 }
 
-async function filterRelevantFiles(files, include, exclude) {
+async function filterRelevantFiles(verbose, files, include, exclude) {
   const { minimatch } = await import("minimatch");
-  return files.filter(
+
+  if (verbose) {
+    console.log("Files to filter: ", files.length);
+  }
+
+  const filteredFiles = files.filter(
     (file) =>
       include.some((pattern) => minimatch(file, pattern)) &&
       !exclude.some((pattern) => minimatch(file, pattern))
   );
+
+  if (verbose) {
+    console.log("Files filtered: ", filteredFiles.length);
+  }
+  return filteredFiles;
 }
