@@ -150,6 +150,9 @@ async function getRelevantFiles(verbose, gitRange, cwd, include, exclude) {
     if (verbose) {
       console.log("Modified files found: ", files);
     }
+
+    // Make file paths relative to cwd
+    files = files.map((file) => path.relative(cwd, path.resolve(cwd, file)));
   } else {
     files = await globby(include, {
       cwd,
