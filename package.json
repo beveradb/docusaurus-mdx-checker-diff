@@ -2,7 +2,7 @@
   "name": "docusaurus-mdx-checker-diff",
   "author": "beveradb",
   "license": "MIT",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Check modified files for Docusaurus content for MDX v2 parsing errors",
   "homepage": "https://github.com/beveradb/docusaurus-mdx-checker-diff#readme",
   "keywords": [

@@ -30,6 +30,9 @@ export default async function main({
   verbose = false,
   globals = DefaultGlobals,
 }) {
+  // Resolve cwd to an absolute path
+  cwd = path.resolve(cwd);
+
   console.log(
     "Getting relevant files" + (gitRange ? ` for git range: ${gitRange}` : "")
   );
@@ -87,7 +90,8 @@ export default async function main({
   }
 
   async function processFilePath(relativeFilePath) {
-    const filePath = path.resolve(cwd, relativeFilePath);
+    // Use path.join instead of path.resolve to prevent duplication
+    const filePath = path.join(cwd, relativeFilePath);
     const fileFormat =
       format === "detect" ? (filePath.endsWith(".md") ? "md" : "mdx") : "mdx";
     try {
@@ -152,7 +156,7 @@ async function getRelevantFiles(verbose, gitRange, cwd, include, exclude) {
     }
 
     // Make file paths relative to cwd
-    files = files.map((file) => path.relative(cwd, path.resolve(cwd, file)));
+    files = files.map((file) => path.relative(cwd, path.join(cwd, file)));
   } else {
     files = await globby(include, {
       cwd,
