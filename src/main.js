@@ -155,8 +155,11 @@ async function getRelevantFiles(verbose, gitRange, cwd, include, exclude) {
       console.log("Modified files found: ", files);
     }
 
-    // Make file paths relative to cwd
-    files = files.map((file) => path.relative(cwd, path.join(cwd, file)));
+    // Remove the cwd path from the beginning of each file path
+    files = files.map(file => {
+      const relativePath = path.relative(cwd, path.resolve(cwd, file));
+      return relativePath.startsWith('..') ? file : relativePath;
+    });
   } else {
     files = await globby(include, {
       cwd,
@@ -181,7 +184,7 @@ async function getModifiedFiles(gitRange, cwd) {
   const { exec } = await import("child_process");
   return new Promise((resolve, reject) => {
     exec(
-      `git diff --name-only ${gitRange}`,
+      `git diff --name-only --relative ${gitRange}`,
       { cwd },
       (error, stdout, stderr) => {
         if (error) reject(error);
